@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Pelican Test</title>
+<link rel="icon" href="data:,">
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; background: #0c0b0a; color: #e9e1cf; font: 14px/1.35 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+  #stage { position: absolute; inset: 0 0 64px 0; display: flex; align-items: center; justify-content: center; padding: 14px; box-sizing: border-box; }
+  #film { max-width: 100%; max-height: 100%; aspect-ratio: 16 / 9; background: #000; box-shadow: 0 0 0 1px #2a2622, 0 18px 60px rgba(0,0,0,.55); cursor: pointer; }
+  #veil { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 14px 22px; background: rgba(16,14,12,.86); border: 1px solid #3a342c; border-radius: 6px; font: 15px/1.4 "Cardo", Georgia, serif; letter-spacing: .02em; pointer-events: none; text-align: center; transition: opacity .25s; }
+  #veil.hidden { opacity: 0; }
+  #veil small { display: block; opacity: .65; font-size: 12px; margin-top: 4px; }
+  #bar { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; display: flex; align-items: center; gap: 14px; padding: 0 18px; box-sizing: border-box; background: #151310; border-top: 1px solid #2a2622; }
+  #bar button { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 1px solid #4a4238; background: #211d19; color: #f1e8d4; font-size: 15px; cursor: pointer; display: grid; place-items: center; padding: 0; }
+  #bar button:hover { background: #2e2822; }
+  #bar button:focus-visible, #seek:focus-visible { outline: 2px solid #e5c97f; outline-offset: 2px; }
+  #seekwrap { position: relative; flex: 1; height: 40px; display: flex; align-items: center; }
+  #ticks { position: absolute; left: 0; right: 0; top: 50%; height: 10px; transform: translateY(-50%); pointer-events: none; }
+  #ticks i { position: absolute; top: 0; width: 1px; height: 10px; background: #5a5044; }
+  #seek { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: #3a342c; border-radius: 2px; margin: 0; position: relative; }
+  #seek::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #e5c97f; border: 0; cursor: pointer; }
+  #seek::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #e5c97f; border: 0; cursor: pointer; }
+  #time { flex: none; font: 13px/1 "DejaVu Sans Mono", ui-monospace, Menlo, monospace; opacity: .85; min-width: 104px; text-align: right; }
+  #label { flex: none; width: 330px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  #label b { font: 600 15px/1.2 "Noto Serif CJK TC", "Songti TC", serif; margin-right: 8px; }
+  #label span { opacity: .8; }
+  #label em { font-style: normal; opacity: .55; margin-left: 8px; font-size: 12px; }
+  body.headless { background: #000; }
+  body.headless #stage { inset: 0; padding: 0; display: block; }
+  body.headless #film { max-width: none; max-height: none; width: 1920px; height: 1080px; box-shadow: none; }
+  body.headless #bar, body.headless #veil { display: none; }
+  @media (max-width: 760px) { #label { display: none; } }
+</style>
+<script src="vendor/p5.min.js"></script>
+<script src="vendor/p5.brush.js"></script>
+</head>
+<body>
+<div id="stage">
+  <canvas id="film" width="1920" height="1080" aria-label="The Pelican Test — film preview"></canvas>
+  <div id="veil">Preparing the canvases…<small></small></div>
+</div>
+<div id="bar">
+  <button id="play" title="Play / pause (space)" aria-label="Play">▶</button>
+  <div id="seekwrap"><div id="ticks"></div><input id="seek" type="range" min="0" max="137" step="0.01" value="0" aria-label="Scrub"></div>
+  <div id="time">0:00.0 / 2:17</div>
+  <div id="label"></div>
+  <button id="mute" title="Sound on / off (m)" aria-label="Mute">♪</button>
+</div>
+<script type="module" src="src/main/boot.js"></script>
+</body>
+</html>

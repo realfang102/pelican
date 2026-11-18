@@ -1,0 +1,25 @@
+// The 20 sections in chronological order: file key, bilingual title, date.
+export const TITLES = [
+  null,
+  { key: 'sahara', zh: '撒哈拉岩畫', en: 'Saharan Rock Art', date: 'c. 4000 BCE' },
+  { key: 'egypt', zh: '埃及壁畫', en: 'Egyptian Wall Painting', date: 'c. 1300 BCE' },
+  { key: 'han', zh: '漢畫像石拓片', en: 'Han Stone Relief Rubbing', date: 'c. 100 CE' },
+  { key: 'tang', zh: '唐代白描', en: 'Tang Baimiao Line Drawing', date: 'c. 750' },
+  { key: 'song', zh: '宋代山水', en: 'Song Landscape', date: 'c. 1000' },
+  { key: 'qingming', zh: '清明上河圖', en: 'Along the River During the Qingming Festival', date: 'c. 1100' },
+  { key: 'maya', zh: '瑪雅手抄本', en: 'Maya Codex', date: 'c. 1200' },
+  { key: 'mughal', zh: '蒙兀兒細密畫', en: 'Mughal Miniature', date: 'c. 1600' },
+  { key: 'bada', zh: '八大山人寫意', en: 'Bada Shanren, Freehand Ink', date: 'c. 1690' },
+  { key: 'wayang', zh: '爪哇皮影戲', en: 'Javanese Wayang Kulit', date: 'c. 1800' },
+  { key: 'ukiyo', zh: '浮世繪', en: 'Ukiyo-e', date: '1830s' },
+  { key: 'starry', zh: '梵谷《星夜》', en: 'Van Gogh, The Starry Night', date: '1889' },
+  { key: 'scream', zh: '孟克《吶喊》', en: 'Munch, The Scream', date: '1893' },
+  { key: 'nosferatu', zh: '《吸血鬼》', en: 'Nosferatu', date: '1922' },
+  { key: 'scope', zh: '示波器向量圖形', en: 'Oscilloscope Vector Graphics', date: '1950s' },
+  { key: 'pixel', zh: '8 位元像素遊戲', en: '8-Bit Pixel Game', date: '1980s' },
+  { key: 'chat', zh: '早期聊天視窗', en: 'Early Chat Window', date: '2000s' },
+  { key: 'vapor', zh: '蒸氣波', en: 'Vaporwave', date: '2010s' },
+  { key: 'vertical', zh: '直式短影音', en: 'Vertical Short Video', date: '2020s' },
+  { key: 'code', zh: '程式碼美學', en: 'Code Aesthetics', date: '2020s' },
+];
+export const pad2 = (n) => String(n).padStart(2, '0');
