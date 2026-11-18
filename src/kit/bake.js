@@ -21,22 +21,23 @@ const stats = { bakes: 0, ms: 0 };
 
 /** extra brushes on top of the built-ins (pen, rotring, 2B, HB, 2H, cpencil, pastel, crayon, charcoal, spray, marker) */
 function registerBrushes(b) {
-  // pointed wet ink brush: swells and tapers with pressure
-  b.add('ink', { type: 'default', weight: 5, scatter: 0.12, sharpness: 0.95, grain: 28, opacity: 235, spacing: 0.04, pressure: { curve: [0.3, 0.2], min_max: [1.5, 0.35] }, rotate: 'none' });
-  // hair-thin, even "iron wire" line for baimiao outlines
-  b.add('inkFine', { type: 'default', weight: 1.6, scatter: 0.05, sharpness: 1, grain: 40, opacity: 240, spacing: 0.04, pressure: { curve: [0.25, 0.25], min_max: [1.25, 0.7] }, rotate: 'none' });
+  // Pressure as an array [start, middle, end] is a fixed envelope (p5.brush's {curve,min_max} form is randomised per stroke).
+  // pointed wet ink brush: swells and tapers
+  b.add('ink', { type: 'default', weight: 0.9, scatter: 0.35, sharpness: 0.92, grain: 22, opacity: 225, spacing: 0.03, pressure: [0.55, 1.15, 0.45], rotate: 'none' });
+  // hair-thin, even "iron wire" line for baimiao outlines and ruled-line (jiehua) work
+  b.add('inkFine', { type: 'default', weight: 0.36, scatter: 0.12, sharpness: 1, grain: 30, opacity: 235, spacing: 0.03, pressure: [0.8, 1.05, 0.7], rotate: 'none' });
   // half-dry brush: ragged, broken edge (flying white)
-  b.add('inkDry', { type: 'default', weight: 7, scatter: 1.5, sharpness: 0.5, grain: 6, opacity: 150, spacing: 0.12, pressure: { curve: [0.2, 0.3], min_max: [1.3, 0.6] }, rotate: 'none' });
+  b.add('inkDry', { type: 'default', weight: 1.3, scatter: 2.2, sharpness: 0.45, grain: 4, opacity: 120, spacing: 0.06, pressure: [0.9, 1.1, 0.6], rotate: 'none' });
   // pale wet wash stroke
-  b.add('inkWash', { type: 'default', weight: 14, scatter: 0.8, sharpness: 0.15, grain: 3, opacity: 5, spacing: 0.1, pressure: { curve: [0.3, 0.3], min_max: [1.2, 0.8] }, rotate: 'none' });
+  b.add('inkWash', { type: 'default', weight: 4, scatter: 3, sharpness: 0.15, grain: 3, opacity: 6, spacing: 0.08, pressure: [1, 1.1, 0.9], rotate: 'none' });
   // finger-painted mineral pigment on rock
-  b.add('ochre', { type: 'default', weight: 7, scatter: 1.1, sharpness: 0.55, grain: 9, opacity: 170, spacing: 0.07, pressure: { curve: [0.25, 0.25], min_max: [1.15, 0.8] }, rotate: 'natural' });
+  b.add('ochre', { type: 'default', weight: 1.4, scatter: 2.0, sharpness: 0.55, grain: 6, opacity: 150, spacing: 0.05, pressure: [0.9, 1.1, 0.8], rotate: 'natural' });
   // opaque flat paint (gouache / tempera / distemper)
-  b.add('gouache', { type: 'marker', weight: 6, scatter: 0.25, sharpness: null, grain: null, opacity: 9, spacing: 0.03, pressure: { curve: [0.3, 0.25], min_max: [1.15, 0.9] }, rotate: 'none' });
+  b.add('gouache', { type: 'marker', weight: 2.2, scatter: 0.2, sharpness: null, grain: null, opacity: 12, spacing: 0.03, pressure: [0.9, 1.1, 0.9], rotate: 'none' });
   // thick loaded oil dab
-  b.add('oil', { type: 'marker', weight: 9, scatter: 0.6, sharpness: null, grain: null, opacity: 14, spacing: 0.035, pressure: { curve: [0.2, 0.3], min_max: [1.3, 0.7] }, rotate: 'none' });
+  b.add('oil', { type: 'marker', weight: 3, scatter: 0.5, sharpness: null, grain: null, opacity: 18, spacing: 0.035, pressure: [0.8, 1.2, 0.7], rotate: 'none' });
   // soft chalk / conté
-  b.add('chalk', { type: 'default', weight: 6, scatter: 2.2, sharpness: 0.35, grain: 5, opacity: 90, spacing: 0.09, pressure: { curve: [0.2, 0.2], min_max: [1.1, 0.9] }, rotate: 'natural' });
+  b.add('chalk', { type: 'default', weight: 1.2, scatter: 3, sharpness: 0.35, grain: 4, opacity: 80, spacing: 0.07, pressure: [1, 1.1, 0.9], rotate: 'natural' });
 }
 
 function resetState(b) {
