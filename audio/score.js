@@ -249,7 +249,7 @@ const SEC = {
     const vn = c.bus({ gain: 0.8, hall: 0.45, room: 0.2 }), bs = c.bus({ gain: 0.75, room: 0.3 });
     const t0 = c.t0;
     // sour → shriek around t = 1.0–2.6, back in tune by 3.4 (when the figure simply stops screaming)
-    const pts = [[0.6, 0], [1.6, 70], [2.4, 135], [2.9, 60], [3.4, 0]];
+    const pts = [[0.4, 0], [1.4, 80], [2.3, 140], [2.5, 30], [2.7, 0]]; // snaps back in tune as the figure stops (t = 2.5)
     const sour = (time) => {
       const x = time - t0;
       if (x <= pts[0][0] || x >= pts[pts.length - 1][0]) return 0;
@@ -257,18 +257,18 @@ const SEC = {
       return 0;
     };
     ph.forEach(([b, d, m]) => {
-      const loud = b * BEAT >= 3.4 ? 0.36 : 0.62;
+      const loud = b * BEAT >= 2.5 ? 0.36 : 0.62;
       c.P(vn, S.strings, b, m + 12, d * BEAT * 1.05, loud, { detuneFn: sour, bias: 0.5 });
       c.P(vn, S.strings, b, m, d * BEAT * 1.05, loud * 0.7, { detuneFn: sour, bias: -0.6 });
     });
     const sh = c.bus({ gain: 0.5, hall: 0.5 });
-    const s = c.sus(1.0, 1.9);
+    const s = c.sus(0.8, 1.7);
     if (s) {
       // the shriek: a high cluster, tremolo, sliding apart
-      [[86, 1.4], [87, -1.2], [91, 1.7], [94, -1.5]].forEach(([m, k]) => S.strings(c.ctx, sh, s[0], m, s[1], 0.5, { att: 0.9, trem: 15, lp: 9000, rel: 0.12, detuneFn: (time) => k * 160 * Math.min(1, Math.max(0, (time - t0 - 1.0) / 1.6)), bias: 1 }));
+      [[86, 1.4], [87, -1.2], [91, 1.7], [94, -1.5]].forEach(([m, k]) => S.strings(c.ctx, sh, s[0], m, s[1], 0.5, { att: 0.9, trem: 15, lp: 9000, rel: 0.12, detuneFn: (time) => k * 160 * Math.min(1, Math.max(0, (time - t0 - 0.8) / 1.5)), bias: 1 }));
     }
     for (const [b, len, notes] of ch) c.P(bs, S.pluck, b, notes[0] - 12, 0.5, b >= 7 ? 0.5 : 0.8, { kind: 'pizz' });
-    for (let b = 7; b < 12; b += 1) c.P(bs, S.pluck, b + 0.5, chordAt(ch, b)[2][2], 0.2, 0.35, { kind: 'pizz' }); // sheepish pizzicato
+    for (let b = 5; b < 12; b += 1) c.P(bs, S.pluck, b + 0.5, chordAt(ch, b)[2][2], 0.2, 0.35, { kind: 'pizz' }); // sheepish pizzicato
   },
   // 14 — Nosferatu: silent-film piano and pipe organ, the tune in D minor
   14(c, ph, ch) {
