@@ -595,7 +595,7 @@ function figure(D, f, S) {
   if (!f.lord) out.dyn.push({ layer: 'back', kind: 'band', at: P([-24, -233]), len: (f.shawl ?? 166) * k, W: 9.5 * k, hang: 1.66, curl: 0.13, up: f.shawlUp ?? 0.28, droop: 0.44, lam: 104, amp: 0.78, speed: 10.5, ph, tw: 132, seed: sd + 1 });
   out.dyn.push({ layer: 'mid', kind: 'band', at: P([-25, -200]), len: (f.lord ? 74 : 108) * k, lift: f.lord ? 0.5 : 1, W: 6 * k, hang: 1.63, curl: 0.1, up: 0.08, droop: 0.5, lam: 74, amp: 0.8, speed: 12, ph: ph + 1.3, tw: 92, seed: sd + 2, lw: 1.4 });
   out.dyn.push({ layer: 'mid', kind: 'band', at: P([-25, -200]), len: (f.lord ? 58 : 84) * k, lift: f.lord ? 0.5 : 1, W: 5.4 * k, hang: 1.76, curl: 0.12, up: -0.12, droop: 0.5, lam: 66, amp: 0.8, speed: 12.6, ph: ph + 3.1, tw: 80, seed: sd + 3, lw: 1.4 });
-  out.dyn.push({ layer: 'front', kind: 'band', at: P([6, -205]), len: 104 * k * sl, W: 9 * k, hang: 1.46, curl: 0.1, up: 0.36, droop: 0.5, lam: 88, amp: 0.7, speed: 11, ph: ph + 2.2, tw: 112, seed: sd + 4 });
+  out.dyn.push({ layer: 'front', kind: 'band', at: P([6, -205]), len: (f.lord ? 66 : 104) * k * sl, W: 9 * k, hang: 1.46, curl: 0.1, up: 0.36, droop: 0.5, lam: 88, amp: 0.7, speed: 11, ph: ph + 2.2, tw: 112, seed: sd + 4 });
   return out;
 }
 
@@ -717,13 +717,13 @@ function canopy(D, cx, y0, S) {
 // the procession: back rank first, then the front rank which overlaps it. The line leaves a place at x ≈ 370–650.
 const FIGS = [
   { id: 'A', x: -18, y: 766, k: 0.96, lean: -0.02, hair: 'tall', attr: 'lotus', seed: 11, train: 0.8 },
-  { id: 'C', x: 190, y: 766, k: 0.95, lean: -0.035, hair: 'loops', look: -1, tilt: 0.06, attr: 'tray', seed: 13, train: 0.7 },
-  { id: 'G', x: 808, y: 766, k: 0.93, lean: -0.02, hair: 'buns', look: -1, attr: 'censer', seed: 17, train: 0.55, sl: 0.9 },
+  { id: 'C', x: 190, y: 766, k: 0.95, lean: -0.05, hair: 'loops', look: -1, tilt: 0.06, attr: 'tray', seed: 13, train: 0.7 },
+  { id: 'G', x: 808, y: 766, k: 0.93, lean: 0.005, hair: 'buns', look: -1, attr: 'censer', seed: 17, train: 0.55, sl: 0.9 },
   { id: 'J', x: 1008, y: 766, k: 0.96, lean: -0.03, hair: 'tall', seed: 19, train: 0.9 },
-  { id: 'B', x: 86, y: 782, k: 1.0, lean: -0.015, hair: 'cap', male: true, attr: 'banner', top: 246, seed: 12, train: 0.45, sl: 0.88 },
-  { id: 'D', x: 294, y: 782, k: 1.0, lean: -0.04, hair: 'tall', tilt: -0.08, attr: 'pipa', seed: 14, train: 1 },
-  { id: 'F', x: 708, y: 782, k: 1.08, lean: -0.02, hair: 'crown', male: true, lord: true, attr: 'tablet', seed: 16, train: 1.05, sl: 1.12 },
-  { id: 'H', x: 904, y: 782, k: 1.0, lean: -0.015, hair: 'cap', male: true, attr: 'banner', top: 236, linger: true, seed: 18, train: 0.45, sl: 0.88 },
+  { id: 'B', x: 86, y: 782, k: 1.0, lean: 0.015, hair: 'cap', male: true, attr: 'banner', top: 246, seed: 12, train: 0.45, sl: 0.88 },
+  { id: 'D', x: 294, y: 782, k: 1.0, lean: -0.045, hair: 'tall', tilt: -0.08, attr: 'pipa', seed: 14, train: 1 },
+  { id: 'F', x: 708, y: 782, k: 1.08, lean: -0.012, hair: 'crown', male: true, lord: true, attr: 'tablet', seed: 16, train: 1.05, sl: 1.12 },
+  { id: 'H', x: 904, y: 782, k: 1.0, lean: 0.012, hair: 'cap', male: true, attr: 'banner', top: 236, linger: true, seed: 18, train: 0.45, sl: 0.88 },
 ];
 
 function compose(D) {
@@ -1067,26 +1067,26 @@ function inkPelican(ctx, pose, t) {
       ctx.arc(p.c[0], p.c[1], p.r, 0, TAU);
       ctx.fillStyle = pats.ground;
       ctx.fill();
-      ring(p.c, p.r * 0.985, 1.75);
-      ring(p.c, p.r * 0.87, 1.1);
+      ring(p.c, p.r * 0.985, 2.1);
+      ring(p.c, p.r * 0.87, 1.35);
       ctx.beginPath();
       for (const [a, b] of Rig.spokes(p, 14, 0.1, 0.87)) {
         ctx.moveTo(a[0], a[1]);
         ctx.lineTo(b[0], b[1]);
       }
-      ctx.lineWidth = 0.85 * s;
+      ctx.lineWidth = 1.0 * s;
       ctx.stroke();
       ctx.beginPath();
       ctx.arc(p.c[0], p.c[1], p.r * 0.1, 0, TAU);
       ctx.fill();
-      ring(p.c, p.r * 0.1, 1.1);
+      ring(p.c, p.r * 0.1, 1.3);
     } else if (p.kind === 'disc') {
       ctx.beginPath();
       ctx.arc(p.c[0], p.c[1], p.r, 0, TAU);
       ctx.fillStyle = pats.ground;
       ctx.fill();
-      ring(p.c, p.r, 1.15);
-      ring(p.c, p.r * 0.42, 0.9);
+      ring(p.c, p.r, 1.4);
+      ring(p.c, p.r * 0.42, 1.1);
     } else if (p.kind === 'eye') {
       ctx.beginPath();
       ctx.arc(p.c[0], p.c[1], p.r * 0.92, 0, TAU);
@@ -1094,7 +1094,7 @@ function inkPelican(ctx, pose, t) {
       ctx.fill();
       if (p.lid > 0.5) wire([[p.c[0] - p.r, p.c[1]], [p.c[0], p.c[1] + p.r * 0.35], [p.c[0] + p.r, p.c[1]]], false, 1.2);
       else {
-        ring(p.c, p.r * 0.92, 1.1);
+        ring(p.c, p.r * 0.92, 1.3);
         ctx.beginPath();
         ctx.arc(p.pupil[0], p.pupil[1], p.pr * 0.95, 0, TAU);
         ctx.fillStyle = col;
@@ -1105,12 +1105,12 @@ function inkPelican(ctx, pose, t) {
         if (p.w >= 3.5 * s) {
           const poly = K.ribbonPoly(p.pts.length > 2 ? K.catmull(p.pts, 5) : p.pts, p.w * 0.82);
           blank(poly);
-          wire(poly, true, 1.4);
-        } else wire(p.pts, false, 1.0);
+          wire(poly, true, 1.6);
+        } else wire(p.pts, false, 1.15);
       } else if (p.role === 'leg') {
         const poly = K.ribbonPoly(K.resample(p.pts, 5), (u) => K.lerp(1.02, 0.6, u) * p.w);
         blank(poly);
-        outline(poly, 1.7, seed);
+        outline(poly, 2.0, seed);
       } else if (p.role === 'head') {
         // crest: at rest the three short plumes of the rig; in the gust they stream out long behind the head
         const i = Number(p.name.slice(-1)), a0 = Math.atan2(p.pts[2][1] - p.pts[0][1], p.pts[2][0] - p.pts[0][0]);
@@ -1123,7 +1123,7 @@ function inkPelican(ctx, pose, t) {
         const i = Number(p.name.slice(-1)), tip = p.pts[4], base = lerpP(p.pts[0], p.pts[8], 0.5);
         if (g > 0.02) {
           // long tail plumes drawn out by the wind
-          const a0 = Math.atan2(tip[1] - base[1], tip[0] - base[0]), len = g * [88, 124, 78][i] * s;
+          const a0 = Math.atan2(tip[1] - base[1], tip[0] - base[0]), len = g * [46, 68, 40][i] * s;
           const c = plumePts(tip, a0, len, { up: 0.16 - i * 0.14, droop: 0.4, amp: 0.55, lam: 66, speed: 12, ph: i * 2.3 + 1 }, t, g);
           const [A, B] = bandEdges(c, { W: 6.2 * s, head: 0.01 });
           knock(ctx, A, B, 1.6);
@@ -1132,37 +1132,37 @@ function inkPelican(ctx, pose, t) {
           feather(c, 0.9, seed + 3);
         }
         blank(p.pts);
-        outline(p.pts, 1.7, seed);
+        outline(p.pts, 2.0, seed);
         feather([base, lerpP(base, tip, 0.86)], 1.0, seed + 4);
       } else if (p.name === 'neck') {
         blank(p.pts);
         const h = p.pts.length / 2;
-        outline(p.pts.slice(0, h), 2.6, seed, false);
-        outline(p.pts.slice(h), 2.6, seed + 1, false);
+        outline(p.pts.slice(0, h), 2.8, seed, false);
+        outline(p.pts.slice(h), 2.8, seed + 1, false);
       } else if (p.name === 'arm') {
         if (!knot) {
           knot = true;
           blank(S.scarfKnot);
-          outline(S.scarfKnot, 1.4, 77);
+          outline(S.scarfKnot, 1.7, 77);
         }
         blank(p.pts);
         const h = p.pts.length / 2;
-        outline(p.pts.slice(0, h), 2.3, seed, false);
-        outline(p.pts.slice(h), 2.3, seed + 1, false);
+        outline(p.pts.slice(0, h), 2.5, seed, false);
+        outline(p.pts.slice(h), 2.5, seed + 1, false);
         // long flight feathers along the wing-arm
         for (const f of [0.3, 0.62]) feather(p.pts.slice(1, h - 1).map((q, i) => lerpP(q, p.pts[p.pts.length - 2 - i], f)), 1.1, seed + 9 * f);
       } else if (p.role === 'body') {
         blank(p.pts);
-        outline(p.pts, 2.9, seed);
-        for (let i = 0; i < BREAST.length; i++) feather(viaBody(BREAST[i]), 1.1, 40 + i);
+        outline(p.pts, 3.1, seed);
+        for (let i = 0; i < BREAST.length; i++) feather(viaBody(BREAST[i]), 1.3, 40 + i);
       } else if (p.role === 'wing') {
         blank(p.pts);
-        outline(p.pts, 2.5, seed);
-        for (let i = 0; i < WING_FEATHERS.length; i++) feather(viaBody(WING_FEATHERS[i]), 1.5, 50 + i);
-        for (let i = 0; i < COVERTS.length; i++) feather(viaBody(COVERTS[i]), 1.1, 60 + i);
+        outline(p.pts, 2.8, seed);
+        for (let i = 0; i < WING_FEATHERS.length; i++) feather(viaBody(WING_FEATHERS[i]), 1.7, 50 + i);
+        for (let i = 0; i < COVERTS.length; i++) feather(viaBody(COVERTS[i]), 1.3, 60 + i);
       } else if (p.role === 'pouch') {
         blank(p.pts);
-        outline(p.pts, 2.0, seed);
+        outline(p.pts, 2.4, seed);
         for (const f of [0.36, 0.66]) {
           const ln = [];
           for (let j = 1; j <= 7; j++) ln.push(lerpP(p.pts[j], p.pts[Math.round(28 - 2.5 * j)], f));
@@ -1170,21 +1170,21 @@ function inkPelican(ctx, pose, t) {
         }
       } else if (p.role === 'beak') {
         blank(p.pts);
-        outline(p.pts, 2.3, seed);
+        outline(p.pts, 2.7, seed);
         const ln = [];
         for (let j = 1; j <= 7; j++) ln.push(lerpP(p.pts[2 * j], p.pts[32 - j], 0.45));
         feather(ln, 1.0, seed + 3);
       } else if (p.role === 'head') {
         blank(p.pts);
-        outline(p.pts, 2.2, seed);
+        outline(p.pts, 2.6, seed);
       } else if (p.role === 'foot') {
         blank(p.pts);
-        outline(p.pts, 1.5, seed);
+        outline(p.pts, 1.8, seed);
         wire([p.pts[2], lerpP(p.pts[4], p.pts[5], 0.5)], false, 0.9);
         wire([lerpP(p.pts[1], p.pts[2], 0.4), p.pts[5]], false, 0.9);
       } else if (p.role !== 'scarf') {
         blank(p.pts); // saddle, pedals
-        wire(p.pts, true, 1.25);
+        wire(p.pts, true, 1.5);
       }
     }
   }
@@ -1195,7 +1195,7 @@ function inkPelican(ctx, pose, t) {
 export default {
   id: 4, key: 'tang', title: TITLES[4], heroT: 3.0,
 
-  // the gust: crest up, neck a little prouder, tail streaming (0 before t = 2 and after t ≈ 5.4)
+  // the gust: crest up, neck a little prouder, tail streaming (0 before t = 2 and after t ≈ 5.2)
   act(t, p) {
     const g = K.clamp(pelGust(t));
     if (g <= 0) return;

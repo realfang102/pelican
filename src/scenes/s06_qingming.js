@@ -934,7 +934,7 @@ function buildScene() {
     if (x > 392 && x < 640 && f > 0.86) continue; // the far railing at the crest belongs to the leaners
     if (kind === 'carry' && f > 0.75) kind = 'tunic';
     const [px, py] = onDeck(x, f), hr = rc();
-    const o = { x: px, y: py, kind, k: kind === 'child' ? 0.64 : rc.range(0.94, 1.05), col: rc.int(0, 7), head: headOf(kind, hr), d0: rc.sign(), bd: rc.sign(), point: kind !== 'carry' && rc() < 0.17 };
+    const o = { x: px, y: py, kind, k: kind === 'child' ? 0.64 : rc.range(0.94, 1.05), col: rc.int(0, 7), head: headOf(kind, hr), d0: rc() < 0.72 ? 1 : -1, bd: rc.sign(), point: kind !== 'carry' && rc() < 0.17 };
     D(-f * 56, () => person(S, o));
   }
   for (const x of [398, 426, 462, 516, 548, 590, 622]) {
@@ -1262,7 +1262,9 @@ function buildScene() {
       I.wash(c, K.ribbonPoly(K.catmull(FAR_L.map(([x, y]) => [x - 13, y]), 4), 22), C.earth, 0.2, { feather: 7, mottle: 0, smooth: false });
       I.wash(c, K.ribbonPoly(K.catmull(FAR_R.map(([x, y]) => [x + 13, y]), 4), 22), C.earth, 0.2, { feather: 7, mottle: 0, smooth: false });
       // water
-      const nearWater = [[268, 859], [500, 690], [732, 859], ...BANK_R.slice(1), ...BANK_L.slice().reverse()];
+      const nearWater = [];
+      for (let i = 0; i <= 24; i++) nearWater.push(arcPt(-TH + (i / 24) * 2 * TH, AR));
+      nearWater.push(...BANK_R.slice(1), ...BANK_L.slice().reverse());
       tint(c, nearWater, C.water, 0.2);
       const farWater = FAR_L.concat(FAR_R.slice().reverse());
       tint(c, farWater, C.water, 0.15);

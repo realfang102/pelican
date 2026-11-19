@@ -2,7 +2,10 @@
 
 Read this once, then read a finished scene: `src/scenes/s01_sahara.js` (p5.brush pigment + cut-out onlookers),
 `src/scenes/s05_song.js` (ink toolkit, path/scale change, camera push-in), `src/scenes/s19_vertical.js`
-(pure Canvas 2D, screen-space overlay, `env.hero`).
+(pure Canvas 2D, screen-space overlay, `env.hero`). Batch 1 is finished too and worth a look for technique:
+`s02_egypt.js` (profile freeze + acting), `s03_han.js` (per-frame pelican through a texture treatment),
+`s04_tang.js` (hidden-line baked drawing + per-frame billowing lines), `s06_qingming.js` (path over an arch, a
+crowd that reacts), `s07_maya.js` (crisp 2D, counting on the beat).
 
 ## The world
 
@@ -149,6 +152,13 @@ Brushes: built-in `pen rotring 2B HB 2H cpencil pastel crayon charcoal spray mar
 > which does this for you. Thin strokes ≈ 0.5 ms each, strokes wider than ~15 px ≈ 50 ms each, each watercolour
 > `brush.fill` ≈ 0.2 s — cover big areas with Canvas 2D fills + `K.noiseLayer`/`K.grain` textures instead.
 > Budget: **`init` under ~15 s** (the tool prints it), **render under ~25 ms/frame**.
+>
+> Two more things learned in batch 1: (1) p5.brush stamps thinner than about 1 px alias into dashes — give `inkFine`
+> weights of roughly 2.5–6 (its stamp is ≈ 0.36 × weight units across, and stamp size grows with pressure *squared*,
+> so pass the square root of the width profile you want as pressure). (2) Many finished scenes use **no p5.brush at
+> all** and are excellent (s03, s07): crisp Canvas 2D drawing + `K.noiseLayer`/`K.grain` wear layers is a perfectly
+> good way to make a period surface. Use p5.brush where real brush or crayon texture is the point.
+> The first frame after `init` costs a one-off ~0.4 s (layer upload) — ignore it when reading ms/frame.
 
 **Canvas 2D strokes for things that move** (per-frame safe): `K.brushStroke(ctx, pts, {width, color, taper:[in,out], dry, wobble, seed})`,
 `K.sketchLine`, `K.hatchPoly(ctx, poly, {angle, gap, width, color})`, `K.glowLine` (additive), `K.ribbon(ctx, pts, widthFn, fill)`,
