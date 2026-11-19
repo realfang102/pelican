@@ -11,6 +11,7 @@ synthesised by code (Web Audio). No images, samples or recordings are used.
 |---|---|
 | Runtime | 137 s at 120 BPM: intro 2½ bars · 20 sections × 3 bars · outro 6 bars |
 | Output | 1920 × 1080, H.264 + AAC |
+| Watch | [`film/the-pelican-test-720p.mp4`](film/the-pelican-test-720p.mp4) (720p60, 66 MB) · [`film/the-pelican-test-540p.mp4`](film/the-pelican-test-540p.mp4) (540p, 10 MB) · contact sheets in [`film/`](film/) |
 | Stack | Node.js 20+, Google Chrome, ffmpeg · p5.js 2.3.4, p5.brush 2.x (vendored) · puppeteer-core |
 
 ## Run it
