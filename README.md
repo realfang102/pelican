@@ -74,5 +74,23 @@ docs        SCENE_API.md — the contract a scene is written against
   shamisen, strings, piano and organ, sine and valve hum, chiptune, ringtone, cassette, pop, piano and synth). A
   bicycle bell rings at every frame. The same scheduling code feeds the live preview and the offline render.
 
+## Frame rate: 60 fps
+
+The film is one continuous lateral tracking shot (about 177 px/s, plus whip pans and push-ins), with title cards
+scrolling past the whole time. The same 2-second moving shot (film 9.2–11.2 s) was rendered at both rates before
+deciding:
+
+| | 30 fps | 60 fps |
+|---|---|---|
+| pan step per frame | 5.9 px | 2.9 px |
+| mean frame-to-frame change (8-bit luma) | 8.0 | 6.1 |
+| H.264 size at CRF 18 | 3.11 MB | 3.14 MB |
+| export time (one worker) | 5.3 s | 8.9 s |
+
+60 fps halves the judder on frame posts and lettering for essentially no extra bytes (the encoder predicts the
+smaller steps better), at about 1.7× the export time — so the film is 60 fps. Inside the shadow-puppet, 8-bit and
+chat-GIF sections the *animation* is quantised to 10–12 updates per second for period stutter while the camera pan
+stays at the full 60. `node tools/render.mjs --fps 30` still works.
+
 Licensing of third-party components and the homage/reference statement are in
 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
