@@ -50,8 +50,11 @@ export async function createEngine() {
       session = null;
       eng.playing = false;
     },
-    /** film time now */
-    time: () => Math.min(DURATION, T0 + Math.max(0, ctx.currentTime - c0)),
+    /** film time now — what is leaving the loudspeaker at this instant (the device's output latency is taken off) */
+    time: () => Math.min(DURATION, T0 + Math.max(0, ctx.currentTime - (ctx.outputLatency || 0) - c0)),
+    /** for tools/synccheck.mjs: the tap point and the mapping between context time and film time */
+    output: mute,
+    clock: () => ({ T0, c0 }),
     setMuted(m) {
       mute.gain.setTargetAtTime(m ? 0 : 1, ctx.currentTime, 0.01);
     },

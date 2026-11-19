@@ -20,6 +20,7 @@ const C = {
   red: '#a8361f', redHi: '#d24c2a', blue: '#3f96a2', blueLt: '#8cc6c2', ochre: '#d29a30', ochreLt: '#e6c070', skin: '#dba463',
 };
 const LW = 2.3; // the codex line
+const FIELD = K.mix(C.blue, C.stucco, 0.5); // the thin blue ground of the pelican's compartment
 let L = null;
 
 // ------------------------------------------------------------------------------------------- page layout
@@ -34,7 +35,7 @@ const SCRIBE = { x: 348, y: SEAT, k: 0.92, dir: 1 };
 const DEITY = { x: 772, y: SEAT, k: 0.92, dir: -1 };
 const PIVOT = [-10, -128]; // neck pivot of both heads (figure-local)
 const CART = { x: 414, y: 266, w: 162, h: 136 };
-const NUM = { cx: 495, rows: [368, 334, 300], dx: 25, r: 11, barH: 20 };
+const NUM = { cx: 495, rows: [369, 334, 299], dx: 26, r: 11.6, barH: 21 };
 const ORDER = [1, 3, 2, 0, 4]; // the order in which the five dot places of a row are filled
 const INK = [423, 417]; // mouth of the conch inkpot
 const ARM = { l1: 70, l2: 70, brush: 66, home: [372, 396] };
@@ -287,6 +288,22 @@ function rosette(ctx, cx, cy, r, a, lw, cols = [C.red, C.blue]) {
   }
   disc(ctx, cx, cy, r * 0.2, C.ochre, lw * 0.8);
   disc(ctx, cx, cy, r * 0.06, C.black, 0);
+}
+/** a small footprint walking toward +x */
+function footprint(ctx, x, y, k = 1.25) {
+  shape(ctx, [[-9, 0], [-6, -3.6], [2, -4.3], [7, -2.6], [8, 1.5], [2, 3.7], [-6, 3]].map(([a, b]) => [x + a * k, y + b * k]), { fill: C.black, w: 0 });
+  for (const [a, b] of [[11.6, -3.7], [13, -1.2], [12.8, 1.4], [11.2, 3.6]]) disc(ctx, x + a * k, y + b * k, 1.5 * k, C.black, 0);
+}
+/** … and the print a rosette wheel leaves on the same road */
+function wheelPrint(ctx, x, y, r) {
+  ctx.fillStyle = C.black;
+  for (let k = 0; k < 4; k++) {
+    const a = (k * Math.PI) / 2 + 0.3;
+    ctx.beginPath();
+    ctx.ellipse(x + Math.cos(a) * r * 0.62, y + Math.sin(a) * r * 0.62, r * 0.42, r * 0.24, a, 0, TAU);
+    ctx.fill();
+  }
+  disc(ctx, x, y, r * 0.16, C.black, 0);
 }
 /** the pelican's emblem glyph beside the title: bird head with pouch over two rosette wheels */
 function emblem(ctx, x, y, w, h) {
@@ -557,7 +574,7 @@ function buildBase() {
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     // lime stucco ground
-    ctx.drawImage(K.paper({ w: 1000, h: 1000, res: 0.6, base: C.stucco, seed: 7, mottle: 0.5, mottleColor: '#b99a68', lightColor: '#fbf6e8', fiber: 0.12, speck: 0.5, stains: 0.5, stainColor: '#9a7440', edge: 0 }), 0, 0, 1000, 1000);
+    ctx.drawImage(K.paper({ w: 1000, h: 1000, res: 0.6, base: C.stucco, seed: 7, mottle: 0.4, mottleColor: '#b99a68', lightColor: '#f7f0de', fiber: 0.12, speck: 0.5, stains: 0.5, stainColor: '#9a7440', edge: 0 }), 0, 0, 1000, 1000);
     // broad strokes of the stucco float
     ctx.drawImage(K.noiseLayer({ scale: 70, oct: 3, seed: 17, color: '#fffaf0', lo: 0.5, hi: 0.9, alpha: 0.35, res: 0.5, stretch: [0.1, 1.5] }), 0, 0, 1000, 1000);
 
@@ -583,6 +600,30 @@ function buildBase() {
       }
     }
 
+    // ---- the pelican's compartment: a field of thin Maya blue, laid in with long horizontal strokes of a wide brush
+    {
+      const x0 = XL + 9, x1 = XR - 9, y0 = YB + 9, y1 = ROAD + 3, edge = [];
+      for (let x = x0; x <= x1; x += 14) edge.push([x, y0 + (K.noise1(x * 0.05, 21) - 0.5) * 5]);
+      for (let y = y0 + 14; y <= y1; y += 14) edge.push([x1 + (K.noise1(y * 0.05, 22) - 0.5) * 5, y]);
+      edge.push([x1, y1], [x0, y1]);
+      for (let y = y1 - 14; y > y0; y -= 14) edge.push([x0 + (K.noise1(y * 0.05, 23) - 0.5) * 5, y]);
+      ctx.save();
+      K.path(ctx, edge, true);
+      ctx.fillStyle = FIELD;
+      ctx.fill();
+      ctx.clip();
+      const r = K.rng(33);
+      for (let y = y0 + 2; y < y1; y += 8.5) {
+        const a = x0 - 20 + r.range(-30, 30), b = x1 + 20 + r.range(-30, 30), yy = y + r.range(-2, 2);
+        K.brushStroke(ctx, [[a, yy], [K.lerp(a, b, 0.33), yy + r.range(-2.5, 2.5)], [K.lerp(a, b, 0.66), yy + r.range(-2.5, 2.5)], [b, yy]], {
+          width: r.range(11, 17), color: K.mix(C.blue, C.stucco, r.range(0.34, 0.66)), alpha: 0.55, taper: [0, 0], minW: 1, wobble: 0.2, dry: r.range(0.3, 0.62), seed: 300 + Math.round(y),
+        });
+      }
+      ctx.restore();
+      // footprints: the codex sign for a road
+      for (let i = 0; i < 12; i++) footprint(ctx, 150 + i * 62, i % 2 ? 784 : 773);
+    }
+
     // ---- red frame lines
     redLine(ctx, B0 - 4, B0, B1 + 4, B0, 6.5, 1);
     redLine(ctx, B0 - 4, B1, B1 + 4, B1, 6.5, 2);
@@ -600,12 +641,12 @@ function buildBase() {
 
     // ---- title compartment: emblem glyph + lettering in the codex's black line
     emblem(ctx, 44, 44, 104, 160);
-    K.titleBlock(ctx, TITLES[7], 166, 56, {
+    K.titleBlock(ctx, TITLES[7], 164, 44, {
       color: C.line, gap: 1.3,
-      zh: { size: 50, weight: 900, font: K.FONT.cjkSerif, tracking: 3 }, en: { size: 29, weight: 700, font: K.FONT.serif, tracking: 0.5 }, date: { size: 24, weight: 700, font: K.FONT.serif, italic: false },
+      zh: { size: 54, weight: 900, font: K.FONT.cjkSerif, tracking: 3 }, en: { size: 33, weight: 700, font: K.FONT.serif, tracking: 0.5 }, date: { size: 27, weight: 700, font: K.FONT.serif, italic: false },
     });
-    for (const x of [172, 196, 220]) disc(ctx, x, 196, 3.4, C.red, 0);
-    line(ctx, [[238, 196], [438, 196]], 1.8, false, C.red);
+    for (const x of [171, 191, 211]) disc(ctx, x, 201, 3.4, C.red, 0);
+    line(ctx, [[228, 201], [446, 201]], 1.8, false, C.red);
 
     // ---- glyph blocks: two rows across the top, a column down each side
     let s = 3;
@@ -665,8 +706,9 @@ function buildWear() {
   });
   return K.layer(1000, 1000, 1.2, (ctx) => {
     // abraded, thinly brushed pigment: stucco showing through the paint
-    ctx.drawImage(K.noiseLayer({ scale: 15, oct: 3, seed: 71, color: C.stucco, lo: 0.58, hi: 0.82, alpha: 0.5, res: 0.6 }), 0, 0, 1000, 1000);
-    ctx.drawImage(K.noiseLayer({ scale: 95, oct: 4, seed: 72, color: C.stucco, lo: 0.56, hi: 0.86, alpha: 0.34, res: 0.4 }), 0, 0, 1000, 1000);
+    ctx.drawImage(K.noiseLayer({ scale: 22, oct: 4, seed: 71, color: C.stucco, lo: 0.6, hi: 0.86, alpha: 0.42, res: 0.6, gain: 0.6 }), 0, 0, 1000, 1000);
+    ctx.drawImage(K.noiseLayer({ scale: 6, oct: 2, seed: 70, color: C.stucco, lo: 0.62, hi: 0.9, alpha: 0.3, res: 0.8 }), 0, 0, 1000, 1000);
+    ctx.drawImage(K.noiseLayer({ scale: 80, oct: 5, seed: 72, color: C.stucco, lo: 0.6, hi: 0.84, alpha: 0.3, res: 0.5, gain: 0.62 }), 0, 0, 1000, 1000);
     ctx.drawImage(K.noiseLayer({ scale: 34, oct: 3, seed: 73, color: '#f6f0e0', lo: 0.52, hi: 0.92, alpha: 0.26, res: 0.6, stretch: [0.12, 1.9] }), 0, 0, 1000, 1000);
     // … but spare the lettering and the tally
     ctx.save();
@@ -692,7 +734,7 @@ function buildWear() {
     K.cracks(ctx, 1000, 1000, { n: 9, seed: 78, color: '#3a2816', alpha: 0.5, width: 1.1, len: 340, branch: 0.5, wander: 0.5 });
     // the fold of the screenfold: a shadowed valley and a lit ridge
     const fx = 879;
-    ctx.fillStyle = K.linGrad(ctx, fx - 26, 0, fx + 14, 0, [[0, 'rgba(70,46,22,0)'], [0.62, 'rgba(70,46,22,0.3)'], [0.72, 'rgba(60,38,18,0.42)'], [0.8, 'rgba(255,250,236,0.4)'], [1, 'rgba(255,250,236,0)']]);
+    ctx.fillStyle = K.linGrad(ctx, fx - 26, 0, fx + 14, 0, [[0, 'rgba(70,46,22,0)'], [0.55, 'rgba(70,46,22,0.26)'], [0.7, 'rgba(56,34,14,0.5)'], [0.76, 'rgba(255,250,236,0.3)'], [0.86, 'rgba(255,250,236,0)'], [1, 'rgba(255,250,236,0)']]);
     ctx.fillRect(fx - 26, 0, 40, 1000);
     // flaked stucco: bark paper showing at the corners, along the edges and down the fold
     const flakes = [flake(0, 0, 84, 1), flake(1000, 0, 108, 2), flake(0, 1000, 92, 3), flake(1000, 1000, 70, 4), flake(1000, 520, 30, 5, 9), flake(0, 640, 26, 6, 9), flake(610, 1000, 28, 7, 9), flake(300, 0, 22, 8, 9)];
@@ -759,7 +801,7 @@ function shellZero(ctx, cx, cy, a) {
 }
 function drawTally(ctx, t) {
   const n = countAt(t), bars = Math.floor(n / 5), dots = n % 5;
-  const za = 1 - K.prog(t, 0.5, 0.1);
+  const za = 1 - K.prog(t, 0.4, 0.1); // the zero is wiped just as the first dab comes down
   if (za > 0) shellZero(ctx, NUM.cx, NUM.rows[1], za);
   const W = NUM.dx * 4 + NUM.r * 2;
   for (let row = 0; row < 3; row++) {
@@ -810,7 +852,7 @@ function drawTally(ctx, t) {
     } else if (row === bars) {
       for (let j = 0; j < dots; j++) {
         const age = t - (row * 5 + j + 1) * 0.5, x = slotX(ORDER[j]);
-        disc(ctx, x, y, NUM.r * K.ease.outBack(K.prog(age, 0, 0.12), 2.6), C.black, 0);
+        disc(ctx, x, y, NUM.r * (0.6 + 0.4 * K.ease.outBack(K.prog(age, 0, 0.12), 3.2)), C.black, 0);
         if (age < 0.26) disc(ctx, x, y, NUM.r + 2 + 11 * K.ease.out3(age / 0.26), null, 1.6 * (1 - age / 0.26) + 0.3, K.rgba(C.black, 0.7 * (1 - age / 0.26)));
       }
     }
@@ -954,21 +996,20 @@ function drawPelican(ctx, pose, t) {
     }
   }
   // speech scrolls curl from the beak when it speaks
-  const sp = speakAt(pose.t - T0);
+  const sp = speakAt(t);
   if (sp > 0.02) {
-    const tip = pose.pt.beakTip, k = 1.12 * s, amt = K.ease.outBack(K.clamp(sp), 1.4);
+    const tip = pose.pt.beakTip, k = 0.94 * s, amt = K.ease.outBack(K.clamp(sp), 1.4);
     const scroll = (pts, w0, w1, col) => {
       const cl = K.catmull(pts.map(([x, y]) => [tip[0] + x * k, tip[1] + y * k]), 8);
       const part = cl.slice(0, Math.max(3, Math.round(cl.length * K.clamp(amt, 0, 1))));
       shape(ctx, K.ribbonPoly(part, (u) => K.lerp(w0, w1, u) * s * Math.min(1, amt)), { fill: col, smooth: false, w: lw * 0.85 });
     };
     scroll([[7, 5], [22, 8], [37, 0], [43, -14], [35, -23], [26, -17], [30, -10]], 8.5, 3.2, C.red);
-    scroll([[5, -5], [17, -14], [29, -30], [33, -50], [23, -64], [8, -62], [3, -49], [11, -40], [20, -45]], 10.5, 3.4, C.blue);
+    scroll([[5, -5], [17, -14], [29, -30], [33, -50], [23, -64], [8, -62], [3, -49], [11, -40], [20, -45]], 10.5, 3.4, C.white);
     if (amt > 0.8) for (const [x, y] of [[50, -34], [60, -44], [53, -52]]) disc(ctx, tip[0] + x * k, tip[1] + y * k, 2.4 * s, C.black, 0);
   }
   ctx.restore();
 }
-const T0 = 5 + 6 * 6; // film time at which this section's local clock starts (pose.t is film time)
 
 // ------------------------------------------------------------------------------------------- the scene
 export default {
@@ -1022,6 +1063,13 @@ export default {
       line(c, spiral(px, py, 4.6, 1, pa + 2.4, pa + 8, 14), LW * Q * 0.7, false);
       disc(c, px, py, 2.7, C.black, 0);
     });
+
+    // where the rear wheel has rolled, the road keeps a small rosette print among the footprints
+    const rear = env.rider.lx - 80;
+    for (let k = 0; k < 10; k++) {
+      const x = 146 + k * 78.54, d = rear - x;
+      if (d > 0) wheelPrint(ctx, x, 792.5, 6.4 * (0.5 + 0.5 * K.ease.outBack(K.clamp(d / 26), 2.2)));
+    }
 
     if (pose) drawPelican(ctx, pose, t);
     ctx.restore();

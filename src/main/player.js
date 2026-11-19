@@ -42,12 +42,18 @@ export function startPlayer({ film, canvas, ctx, Beat }) {
     return engine;
   }
 
+  let starting = false; // true while the audio engine is being created / started: the picture waits for it
   async function startClock() {
-    const eng = await getEngine();
-    if (!playing) return;
-    if (eng) await eng.play(T);
-    T0 = T;
-    clock0 = now();
+    starting = true;
+    try {
+      const eng = await getEngine();
+      if (!playing) return;
+      if (eng) await eng.play(T);
+      T0 = T;
+      clock0 = now();
+    } finally {
+      starting = false;
+    }
   }
   function stopClock() {
     if (engine) engine.stop();
@@ -112,7 +118,7 @@ export function startPlayer({ film, canvas, ctx, Beat }) {
   })();
 
   function tick() {
-    if (playing && !holding) {
+    if (playing && !holding && !starting) {
       T = clockT();
       if (T >= D) {
         T = D;
