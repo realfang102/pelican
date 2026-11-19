@@ -1,0 +1,24 @@
+{
+  "name": "the-pelican-test",
+  "version": "1.0.0",
+  "description": "The Pelican Test — a code-generated animated short: a pelican rides a bicycle through 20 eras of art (p5.js + p5.brush + Canvas 2D, Web Audio)",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "preview": "node tools/serve.mjs",
+    "sheet": "node tools/sheet.mjs",
+    "shot": "node tools/shot.mjs",
+    "render": "node tools/render.mjs",
+    "audio": "node tools/audio.mjs",
+    "build": "node tools/build.mjs",
+    "film": "node tools/render.mjs && node tools/audio.mjs && node tools/build.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "p5": "^2.3.4",
+    "p5.brush": "^2.2.3"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.8.0"
+  }
+}

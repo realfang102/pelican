@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>The Pelican Test — score renderer</title><link rel="icon" href="data:,"></head>
+<body>
+<script type="module">
+import { renderScore, encodeWav } from './offline.js';
+window.__audio = {
+  /** render [from, to) and keep the WAV bytes in the page; returns stats */
+  async render(opts) {
+    const t0 = performance.now();
+    const buf = await renderScore(opts);
+    const { bytes, gain, peak } = encodeWav(buf);
+    window.__wav = bytes;
+    return { seconds: buf.duration, bytes: bytes.length, ms: Math.round(performance.now() - t0), peak, gain };
+  },
+  /** hand the WAV to Node in base64 chunks */
+  chunk(i, size) {
+    const part = window.__wav.subarray(i * size, (i + 1) * size);
+    let s = '';
+    for (let k = 0; k < part.length; k += 0x8000) s += String.fromCharCode.apply(null, part.subarray(k, k + 0x8000));
+    return btoa(s);
+  },
+};
+window.__ready = Promise.resolve(true);
+</script>
+</body></html>
