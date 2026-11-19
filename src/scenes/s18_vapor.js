@@ -703,7 +703,7 @@ function tapeFx(t) {
     const hit = Math.max(0, 1 - ph / 0.13);
     fx.tear = k < SKIP.times ? hit : Math.max(0, 1 - ph / 0.1) * 0.8;
     fx.tearY = k < SKIP.times ? TEAR_Y[k] : 450;
-    fx.split += 10 * hit + 2;
+    fx.split += 10 * hit + 0.4;
     fx.wob += 3 * hit;
     fx.scan = Math.min(k, 3) * 1.5 + (k >= SKIP.times ? 0 : 0);
     fx.flash = hit * 0.18;
