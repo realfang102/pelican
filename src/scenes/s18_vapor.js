@@ -98,20 +98,26 @@ function headPoint(u, v) {
 }
 
 function bustTris() {
-  let T = gridTris(26, 44, headPoint, true, 'head');
+  let T = gridTris(20, 36, headPoint, true, 'head');
   // neck
   T = T.concat(gridTris(4, 18, (u, v) => {
     const a = u * K.TAU;
     const r = 0.46 + 0.06 * v;
-    return v3(Math.sin(a) * r, 0.75 + v * 1.25, Math.cos(a) * r * 0.95 - 0.05);
+    return v3(Math.sin(a) * r, 0.75 + v * 1.1, Math.cos(a) * r * 0.95 - 0.05);
   }, true, 'neck'));
-  // chest and shoulders: the top of an ellipsoid, cut flat
-  T = T.concat(gridTris(7, 30, (u, v) => {
-    const a = u * K.TAU, b = v * Math.PI * 0.5;
-    const r = Math.sin(b);
-    const y = 3.0 - Math.cos(b) * 1.3;
-    return v3(Math.sin(a) * r * 2.05, y + 0.12 * Math.cos(a * 2) * r, Math.cos(a) * r * 0.95);
-  }, true, 'chest'));
+  // chest and shoulders: sloping shoulders, rounded on top, cut away in the classical U under the chest
+  const W = 2.0;
+  T = T.concat(gridTris(9, 28, (u, v) => {
+    const x = (u * 2 - 1) * W, q = x / W;
+    const yTop = 1.62 + 0.5 * q * q, yBot = 2.95 - 0.42 * Math.pow(Math.abs(q), 2.2);
+    const y = K.lerp(yTop, yBot, v);
+    const D = 1.0 * Math.sqrt(Math.max(0, 1 - Math.pow(Math.abs(q), 3)));
+    const round = Math.sin(Math.min(1, v * 3.2) * Math.PI * 0.5);
+    const pec = 0.1 * g2(Math.abs(x) - 0.75, 0.45) * g2(y - 2.35, 0.3);
+    const clav = -0.07 * g2(y - 1.95, 0.08) * g2(Math.abs(x) - 0.7, 0.5);
+    const sternum = -0.06 * g2(x, 0.18) * K.smoothstep(1.9, 2.4, y);
+    return v3(x * (0.92 + 0.08 * round), y, D * round + pec + clav + sternum);
+  }, false, 'chest'));
   return T;
 }
 
@@ -157,7 +163,7 @@ function renderBust(ctx, tris, yaw, scale) {
   }
 }
 
-const BUST = { x: 850, base: 580, scale: 54 };
+const BUST = { x: 850, base: 580, scale: 58 };
 const YAWS = [-0.85, -0.45, 0, 0.42, 0.8];
 
 // ------------------------------------------------------------------------------------------- static layers
@@ -178,6 +184,20 @@ function buildSky() {
     // floor
     c.fillStyle = K.linGrad(c, 0, H0, 0, 1000, [[0, '#3a0d5a'], [0.25, '#1f0638'], [1, '#090118']]);
     c.fillRect(0, H0, 1000, 400);
+    // the receding lines of the grid (they do not move; the cross lines scroll)
+    c.beginPath();
+    for (let X = -42; X <= 42.001; X += 0.42) {
+      c.moveTo(VPX + (X * 400) / 120, H0 + 400 / 120);
+      c.lineTo(VPX + X * 400, H0 + 400);
+    }
+    c.globalCompositeOperation = 'lighter';
+    c.strokeStyle = 'rgba(255,60,200,0.2)';
+    c.lineWidth = 5;
+    c.stroke();
+    c.strokeStyle = 'rgba(255,120,230,0.85)';
+    c.lineWidth = 1.3;
+    c.stroke();
+    c.globalCompositeOperation = 'source-over';
   });
 }
 
@@ -266,34 +286,37 @@ function buildPalm(seed, h, lean) {
       c.fill();
     }
     const top = pts[N];
-    // fronds: each a spine with alternating triangular facets
+    // fronds: arching spines combed with long faceted leaflets
     const F = 9;
     for (let k = 0; k < F; k++) {
-      const ang = -Math.PI + (k / (F - 1)) * Math.PI + r.range(-0.12, 0.12);
-      const len = h * r.range(0.42, 0.55);
-      const droop = r.range(0.5, 0.8);
+      const ang = -Math.PI * 1.08 + (k / (F - 1)) * Math.PI * 1.16 + r.range(-0.1, 0.1);
+      const len = h * r.range(0.4, 0.52);
+      const dir = [Math.cos(ang), Math.sin(ang)];
+      const up = Math.max(0, -dir[1]);
+      const p0 = [top[0], top[1] - 4];
+      const p1 = [top[0] + dir[0] * len * 0.55, top[1] + dir[1] * len * 0.45 - len * 0.18 * up];
+      const p2 = [top[0] + dir[0] * len, top[1] + dir[1] * len * 0.25 + len * 0.42];
       const spine = [];
-      for (let i = 0; i <= 7; i++) {
-        const u = i / 7;
-        const x = top[0] + Math.cos(ang) * len * u;
-        const y = top[1] + Math.sin(ang) * len * u * 0.55 + droop * len * u * u * 0.75 - 6;
-        spine.push([x, y]);
+      for (let i = 0; i <= 8; i++) {
+        const u = i / 8, m = 1 - u;
+        spine.push([m * m * p0[0] + 2 * m * u * p1[0] + u * u * p2[0], m * m * p0[1] + 2 * m * u * p1[1] + u * u * p2[1]]);
       }
-      for (let i = 0; i < 7; i++) {
+      for (let i = 1; i < 8; i++) {
         const a = spine[i], b = spine[i + 1];
         const dx = b[0] - a[0], dy = b[1] - a[1], m = Math.hypot(dx, dy) || 1;
-        const nx = -dy / m, ny = dx / m, w = 16 * Math.sin(((i + 0.5) / 7) * Math.PI) + 3;
-        const up = [(a[0] + b[0]) / 2 + nx * w, (a[1] + b[1]) / 2 + ny * w];
-        const dn = [(a[0] + b[0]) / 2 - nx * w * 1.1, (a[1] + b[1]) / 2 - ny * w * 1.1 + 4];
-        c.fillStyle = ny < 0 ? '#25d7c3' : '#14a3a6';
-        K.path(c, [a, up, b], true);
+        const nx = -dy / m, ny = dx / m, w = len * 0.2 * Math.sin((i / 8) * Math.PI) + 4;
+        // leaflets hang: pulled toward the ground and back along the frond
+        const tipA = [b[0] + nx * w * 0.6 + dx / m * w * 0.3, b[1] + ny * w * 0.6 + w * 0.75];
+        const tipB = [b[0] - nx * w * 0.6 + dx / m * w * 0.3, b[1] - ny * w * 0.6 + w * 0.75];
+        c.fillStyle = i % 2 ? '#1fcdbb' : '#29e0c8';
+        K.path(c, [a, tipA, b], true);
         c.fill();
-        c.fillStyle = ny < 0 ? '#0d6e86' : '#1bb8b4';
-        K.path(c, [a, dn, b], true);
+        c.fillStyle = i % 2 ? '#0f8496' : '#137a92';
+        K.path(c, [a, tipB, b], true);
         c.fill();
       }
-      c.strokeStyle = 'rgba(255,140,230,0.85)';
-      c.lineWidth = 1.4;
+      c.strokeStyle = 'rgba(255,150,230,0.9)';
+      c.lineWidth = 1.6;
       K.path(c, spine, false);
       c.stroke();
     }
@@ -307,8 +330,10 @@ function buildPalm(seed, h, lean) {
   });
 }
 
+const PED_BOX = [740, 540, 220, 340];
 function buildPedestal() {
-  return K.layer(1000, 1000, 1, (c) => {
+  return K.layer(PED_BOX[2], PED_BOX[3], 1, (c) => {
+    c.translate(-PED_BOX[0], -PED_BOX[1]);
     const x0 = 795, x1 = 905, y0 = BUST.base + 4, y1 = 760, k = 0.09;
     const L0 = [x0 - k * (x0 - VPX), y0 - k * (y0 - H0)], L1 = [x0 - k * (x0 - VPX), y1 - k * (y1 - H0)];
     // floor reflection of the pedestal
@@ -377,15 +402,17 @@ function buildPedestal() {
 function buildBusts() {
   const tris = bustTris();
   return YAWS.map((yaw) =>
-    K.layer(260, 280, 2.2, (c) => {
-      c.translate(130, 270 - 3.0 * BUST.scale);
+    K.layer(300, 280, 2.2, (c) => {
+      c.translate(150, 270 - 2.75 * BUST.scale);
       renderBust(c, tris, yaw, BUST.scale);
     }),
   );
 }
 
+const TITLE_BOX = [36, 32, 420, 194];
 function buildTitle() {
-  return K.layer(1000, 300, 1, (c) => {
+  return K.layer(TITLE_BOX[2], TITLE_BOX[3], 1.25, (c) => {
+    c.translate(-TITLE_BOX[0], -TITLE_BOX[1]);
     const x = 44, y = 40, w = 400, h = 176;
     c.fillStyle = 'rgba(14,4,34,0.72)';
     c.fillRect(x, y, w, h);
@@ -441,27 +468,25 @@ function drawSun(c, tt) {
 
 function drawGrid(c, tt) {
   const F = 400, dz = 0.5, off = (tt * 0.42) % dz;
-  c.beginPath();
-  for (let i = 0; i < 160; i++) {
+  const near = new Path2D(), far = new Path2D();
+  for (let i = 0; i < 80; i++) {
     const z = 1 + i * dz - off;
     if (z < 0.98) continue;
+    if (z > 36) break;
     const y = H0 + F / z;
-    if (y - H0 < 2) break;
-    c.moveTo(0, y);
-    c.lineTo(1000, y);
-  }
-  for (let X = -42; X <= 42.001; X += 0.42) {
-    c.moveTo(VPX + (X * F) / 120, H0 + F / 120);
-    c.lineTo(VPX + X * F, H0 + F);
+    const P = z < 5 ? near : far;
+    P.moveTo(0, y);
+    P.lineTo(1000, y);
   }
   c.save();
   c.globalCompositeOperation = 'lighter';
   c.strokeStyle = 'rgba(255,60,200,0.22)';
   c.lineWidth = 5;
-  c.stroke();
+  c.stroke(near);
   c.strokeStyle = 'rgba(255,120,230,0.85)';
   c.lineWidth = 1.3;
-  c.stroke();
+  c.stroke(near);
+  c.stroke(far);
   c.restore();
 }
 
@@ -694,69 +719,71 @@ function tapeFx(t) {
 }
 
 function strips(w, F, t, fx, d) {
-  w.setTransform(1, 0, 0, 1, 0, 0);
-  w.globalCompositeOperation = 'source-over';
-  w.fillStyle = '#0a0118';
-  w.fillRect(0, 0, 1000, 1000);
   const tb0 = fx.tearY - 36, tb1 = fx.tearY + 36;
   let y = 0;
   while (y < 1000) {
     const inTear = fx.tear > 0 && y >= tb0 && y < tb1;
-    const h = inTear ? 6 : 40;
+    const h = inTear ? 6 : 50;
     let dx = d + fx.wob * Math.sin(y * 0.013 + t * 6 * fx.wobHz) * (0.6 + 0.4 * K.noise1(y * 0.05 + t * 3));
     if (inTear) dx += fx.tear * (18 + 40 * K.hash1((y * 7 + Math.floor(t * 40)) | 0)) * (K.hash1(y | 0) > 0.5 ? 1 : -0.6);
     w.drawImage(F, 0, y, 1000, h, dx, y, 1000, h);
     y += h;
   }
   if (fx.tear > 0) {
+    w.save();
     w.globalAlpha = Math.min(1, fx.tear * 1.2);
     w.globalCompositeOperation = 'lighter';
     w.drawImage(L.noise, 0, 0, 1000, 120, (t * 997) % 200 - 100, fx.tearY - 50, 1000, 100);
-    w.globalCompositeOperation = 'source-over';
-    w.globalAlpha = 1;
+    w.restore();
   }
 }
 
-function composite(ctx, t, fx, hero) {
-  const F = L.F;
-  // 1–2. tracking wobble + tear band by horizontal strips, drawn straight into a red and a cyan channel copy that
-  // are offset against each other (chroma split; exact where aligned)
-  const d = fx.split;
-  const r = L.Rc.getContext('2d'), b = L.Bc.getContext('2d');
-  const V=globalThis.V18||3; if(V===1){ctx.drawImage(F,0,0,1000,1000);return;}
-  strips(r, F, t, fx, -d);
-  if(V===2){ctx.drawImage(L.Rc,0,0,1000,1000);return;}
-  strips(b, F, t, fx, d);
-  r.globalCompositeOperation = 'multiply';
-  r.fillStyle = '#ff0000';
-  r.fillRect(0, 0, 1000, 1000);
-  b.globalCompositeOperation = 'multiply';
-  b.fillStyle = '#00ffff';
-  b.fillRect(0, 0, 1000, 1000);
-  ctx.drawImage(L.Rc, 0, 0, 1000, 1000);
-  ctx.save();
-  ctx.globalCompositeOperation = 'lighter';
-  ctx.drawImage(L.Bc, 0, 0, 1000, 1000);
-  ctx.restore();
-  if(V===3)return;
-  // 3. bloom: a tiny copy blown back up, screened on
+function composite(ctx, t, fx) {
+  const F = L.F, d = fx.split;
+  ctx.fillStyle = '#0a0118';
+  ctx.fillRect(0, 0, 1000, 1000);
+  // bloom source: a tiny copy of the frame
   const s = L.Sc.getContext('2d');
   s.setTransform(1, 0, 0, 1, 0, 0);
   s.imageSmoothingQuality = 'low';
   s.drawImage(F, 0, 0, 1000, 1000, 0, 0, 125, 125);
+  if (d > 2.2) {
+    // a real channel split: red one way, green+blue the other (exact where aligned)
+    for (const [cv, col, sx] of [[L.Rc, '#ff0000', -d], [L.Bc, '#00ffff', d]]) {
+      const w = cv.getContext('2d');
+      w.setTransform(1, 0, 0, 1, 0, 0);
+      w.globalCompositeOperation = 'source-over';
+      w.fillStyle = '#0a0118';
+      w.fillRect(0, 0, 1000, 1000);
+      strips(w, F, t, fx, sx);
+      w.globalCompositeOperation = 'multiply';
+      w.fillStyle = col;
+      w.fillRect(0, 0, 1000, 1000);
+    }
+    ctx.drawImage(L.Rc, 0, 0, 1000, 1000);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.drawImage(L.Bc, 0, 0, 1000, 1000);
+    ctx.restore();
+  } else {
+    strips(ctx, F, t, fx, 0);
+  }
   ctx.save();
   ctx.globalCompositeOperation = 'screen';
   ctx.globalAlpha = 0.28;
   ctx.drawImage(L.Sc, 0, 0, 125, 125, 0, 0, 1000, 1000);
-  // 4. slow-down smear on entry: trailing ghosts
+  // everyday chroma bleed: a soft smeared echo to the right
+  ctx.globalAlpha = 0.1;
+  ctx.drawImage(L.Sc, 0, 0, 125, 125, 4, 0, 1000, 1000);
+  // slow-down smear on entry: trailing ghosts
   if (fx.ghost > 0.01) {
     for (let i = 1; i <= 3; i++) {
-      ctx.globalAlpha = (0.28 * fx.ghost) / i;
+      ctx.globalAlpha = (0.3 * fx.ghost) / i;
       ctx.drawImage(F, -26 * i * fx.ghost, 0, 1000, 1000);
     }
   }
   ctx.restore();
-  // 5. scanlines (they jump on each repeat) and a slow rolling band
+  // scanlines (they jump on each repeat) and a slow rolling band
   ctx.drawImage(L.scan, 0, -6 + (fx.scan % 6), 1000, 1012);
   const ry = ((t * 70) % 1300) - 150;
   ctx.fillStyle = K.linGrad(ctx, 0, ry, 0, ry + 120, [[0, 'rgba(255,255,255,0)'], [0.5, 'rgba(255,230,255,0.05)'], [1, 'rgba(255,255,255,0)']]);
@@ -765,7 +792,7 @@ function composite(ctx, t, fx, hero) {
     ctx.fillStyle = `rgba(255,220,255,${fx.flash})`;
     ctx.fillRect(0, 0, 1000, 1000);
   }
-  // 6. head-switching noise along the bottom edge
+  // head-switching noise along the bottom edge
   ctx.save();
   ctx.globalAlpha = 0.5;
   ctx.drawImage(L.noise, (t * 613) % 300, 0, 700, 30, 0, 986, 1000, 14);
@@ -796,7 +823,7 @@ export default {
     };
   },
   render(ctx, t, env) {
-    const tt = tapeT(t); const P0=performance.now(); const T=[];
+    const tt = tapeT(t);
     const c = L.F.getContext('2d');
     c.setTransform(1, 0, 0, 1, 0, 0);
     c.globalAlpha = 1;
@@ -822,10 +849,10 @@ export default {
     drawSolid(c, 'oct', 330, 300, 36, tt, 1.7);
     drawSolid(c, 'cube', 700, 360, 26, tt, 2.9);
     // the bust on its pedestal
-    K.put(c, L.ped);
+    K.put(c, L.ped, PED_BOX[0], PED_BOX[1], PED_BOX[2], PED_BOX[3]);
     const bi = bustYawIndex(t);
-    c.drawImage(L.busts[bi], BUST.x - 130, BUST.base - 270, 260, 280);
-    T.push(performance.now()-P0); drawRoad(c, t);
+    c.drawImage(L.busts[bi], BUST.x - 150, BUST.base - 270, 300, 280);
+    drawRoad(c, t);
     // the pelican (at tape time) with its reflection on the glossy floor
     const pose = tt !== t ? env.poseAt(tt) : env.pose;
     if (pose) {
@@ -848,14 +875,18 @@ export default {
       const bt = pose.pt.beakTip, bb = pose.pt.beakBase;
       glint(c, K.lerp(bb[0], bt[0], 0.55), K.lerp(bb[1], bt[1], 0.55) - 5 * pose.s, 14 * pose.s * (0.7 + 0.3 * Math.exp(-((tt * 2) % 1) * 4)), 0.85);
     }
-    T.push(performance.now()-P0);
     // title card + VHS on-screen display
-    K.put(c, L.title, 0, 0, 1000, 300);
+    K.put(c, L.title, TITLE_BOX[0], TITLE_BOX[1], TITLE_BOX[2], TITLE_BOX[3]);
     const secs = 107 + Math.max(0, tt);
     const ts = `SP  0:01:${String(Math.floor(secs) % 60).padStart(2, '0')}:${String(Math.floor((secs % 1) * 30)).padStart(2, '0')}`;
     K.text(c, 'PLAY ▶', 44, 950, { size: 26, font: K.FONT.mono, weight: 700, color: 'rgba(240,250,255,0.92)', tracking: 2 });
     K.text(c, ts, 956, 950, { size: 26, font: K.FONT.mono, weight: 700, color: 'rgba(240,250,255,0.92)', align: 'right', tracking: 2 });
     // through the tape
-    T.push(performance.now()-P0); composite(ctx, t, tapeFx(t), env.hero); c.getImageData(0,0,1,1); ctx.getImageData?.(0,0,1,1); T.push(performance.now()-P0); console.log('T18', t, T.map(x=>x.toFixed(1)).join(' '));
+    const fx = tapeFx(t);
+    if (env.hero && fx.tear > 0) {
+      // the outro still: keep the tear band (on the floor) but let the pelican read cleanly
+      Object.assign(fx, { tear: 0.7, tearY: TEAR_Y[2], split: 3, wob: 1.5, flash: 0 });
+    }
+    composite(ctx, t, fx);
   },
 };

@@ -437,7 +437,6 @@ export default {
       if ((x + q4 * 2) % 9 === 0) px(g, x, 238, PAL.lgrey);
     }
     // the coin (before the grab) / sparkle and "+200" (after)
-    if (t < TA) drawCoin(g, COIN[0], COIN[1] + (q8 % 8 < 4 ? 0 : -1), q8);
 
     // pips on the ruins and by the signpost: hop on every beat, higher and watching during bar 2
     const look = env.pose ? env.pose.x / PX : env.rider.lx / PX;
@@ -464,8 +463,9 @@ export default {
       const [ox, oy] = pelicanSprite(env.pose);
       g.drawImage(L.spr, ox, oy);
     }
+    if (t < TA) drawCoin(g, COIN[0], COIN[1] + (q8 % 8 < 4 ? 0 : -1), q8);
     if (t >= TA && t < TA + 0.42) sparkle(g, COIN[0], COIN[1], (q12 - TA) / 0.42);
-    if (t >= TA && t < TA + 0.55) glyphs(g, '200', COIN[0] - 8, COIN[1] - 28 - Math.floor((t - TA) * 24), PAL.white, 1, PAL.ink);
+    if (t >= TA && t < TA + 0.55) glyphs(g, '200', COIN[0] + 34, COIN[1] - 16 - Math.floor((t - TA) * 24), PAL.white, 1, PAL.ink);
     // "1UP" pops on the strong beat and floats up
     const u1 = t - ONEUP;
     if (u1 >= 0 && u1 < 1.1) {
