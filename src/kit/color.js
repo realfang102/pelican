@@ -2,11 +2,17 @@
 import { clamp } from './math.js';
 
 const cache = new Map();
-/** '#abc' | '#aabbcc' | [r,g,b] → [r,g,b] */
+/** '#abc' | '#aabbcc' | 'rgb(r,g,b)' | 'rgba(r,g,b,a)' | [r,g,b] → [r,g,b] (alpha is ignored) */
 export function rgb(c) {
   if (Array.isArray(c)) return c;
   let v = cache.get(c);
   if (v) return v;
+  const m = /^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/i.exec(c); // also accept rgb()/rgba() strings
+  if (m) {
+    v = [+m[1], +m[2], +m[3]];
+    cache.set(c, v);
+    return v;
+  }
   const h = c.replace('#', '');
   const f = h.length === 3 ? h.split('').map((x) => x + x).join('') : h;
   v = [parseInt(f.slice(0, 2), 16), parseInt(f.slice(2, 4), 16), parseInt(f.slice(4, 6), 16)];

@@ -571,7 +571,7 @@ function filmDamage(ctx, T) {
 
 export default {
   id: 14, key: 'nosferatu', title: TITLES[14],
-  heroT: 2.75,
+  heroT: 3.2,
   // slow on the climb, quicker coming down
   profile: [[0, 0], [2.0, 0.3], [3.5, 0.47], [6, 1]],
   path(u) {
@@ -659,9 +659,13 @@ export default {
       const tp = env.poseAt(Math.min(t, 6.7));
       const e = K.clamp((t - 5.7) / 0.3);
       const A = t < 6 ? 0.3 * e * e : (0.6 + 0.4 * Beat.hit(t, 6, 5)) * (1 - K.smoothstep(6.55, 7.5, t));
+      const gx = Math.min(tp.x, 1010), gy = tp.y - 150;
+      // the lamp seems to die as the phosphor takes over: the wall darkens round the figure
+      const dk = t < 6 ? 0.3 * e : 0.5 * (1 - K.smoothstep(6.5, 7.4, t));
+      ctx.fillStyle = K.radGrad(ctx, gx, gy, 30, 520, [[0, cg(0, dk)], [0.55, cg(0, dk * 0.6)], [1, cg(0, 0)]]);
+      ctx.fillRect(0, 0, 1000, 1000);
       ctx.save();
       ctx.globalCompositeOperation = 'screen';
-      const gx = Math.min(tp.x, 1010), gy = tp.y - 150;
       ctx.fillStyle = K.radGrad(ctx, gx, gy, 20, 560, [[0, `rgba(70,255,140,${0.3 * A})`], [0.4, `rgba(40,220,110,${0.13 * A})`], [1, 'rgba(20,160,80,0)']]);
       ctx.fillRect(0, 0, 1000, 1000);
       ctx.fillStyle = `rgba(30,150,75,${0.1 * A})`;
